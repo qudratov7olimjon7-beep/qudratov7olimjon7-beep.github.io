@@ -27,6 +27,7 @@
   <div id="view-achievements" class="view" role="tabpanel" aria-labelledby="tab-achievements">
   <div id="globe" role="img" aria-label="Interactive globe. Highlighted countries have achievements."></div>
   <div id="tip" role="status" hidden></div>
+  <p class="upcoming" id="upcoming" aria-label="Upcoming"></p>
   <nav class="countries" id="countryList" aria-label="Countries with achievements"></nav>
   <section id="panel" class="panel" aria-labelledby="panelTitle" hidden>
     <div class="panel-head"><h2 id="panelTitle"></h2><button class="icon-btn" id="panelClose" aria-label="Close panel">×</button></div>
@@ -41,7 +42,7 @@
 <div id="detail" class="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
   <div class="detail-inner">
     <button class="icon-btn" id="detailClose" aria-label="Close details">×</button>
-    <img id="dImg" class="d-img" alt="" hidden><p class="meta" id="dMeta"></p><h2 id="dTitle"></h2><p class="result" id="dResult"></p><dl id="dFacts" class="facts" hidden></dl><p id="dBody"></p><a id="dLink" class="d-link" target="_blank" rel="noopener" hidden>Visit site ↗</a>
+    <img id="dImg" class="d-img" alt="" hidden><p class="meta" id="dMeta"></p><h2 id="dTitle"></h2><p class="result" id="dResult"></p><p class="role" id="dRole" hidden></p><p class="robot" id="dRobot" hidden></p><dl id="dFacts" class="facts" hidden></dl><p id="dBody"></p><a id="dLink" class="d-link" target="_blank" rel="noopener" hidden>Visit site ↗</a>
   </div>
 </div>
 <script type="module" src="app.js"></script>

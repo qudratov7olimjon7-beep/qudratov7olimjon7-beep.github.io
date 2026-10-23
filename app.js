@@ -1,6 +1,6 @@
 import Globe from 'globe.gl';
 import { feature } from 'topojson-client';
-import { profile, achievements, certificates, projects, websites } from './data.js';
+import { profile, achievements, upcoming, certificates, projects, websites } from './data.js';
 
 const $ = (s) => document.querySelector(s);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -113,6 +113,10 @@ for (const c of Object.keys(byCountry)) {
   list.append(b);
 }
 
+/* ---------- Upcoming ---------- */
+$('#upcoming').replaceChildren(...upcoming.map((u) => Object.assign(document.createElement('span'), { className: 'up', textContent: `${u.note}: ${u.name}` })));
+$('#upcoming').hidden = !upcoming.length;
+
 /* ---------- Panel ---------- */
 const panel = $('#panel');
 function selectCountry(name) {
@@ -126,12 +130,12 @@ function selectCountry(name) {
   }
   list.querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.country === name)));
   $('#panelTitle').textContent = name;
-  $('#cards').replaceChildren(...byCountry[name].sort((a, b) => b.year - a.year).map((a) => {
+  $('#cards').replaceChildren(...byCountry[name].sort((a, b) => b.date.localeCompare(a.date)).map((a) => {
     const li = document.createElement('li');
     const b = document.createElement('button');
     b.className = 'card';
     b.innerHTML = `<span class="t"></span><span class="m"></span><span class="r"></span>`;
-    b.querySelector('.t').textContent = a.name; b.querySelector('.m').textContent = `${a.year} · ${a.short}`; b.querySelector('.r').textContent = a.result;
+    b.querySelector('.t').textContent = a.name; b.querySelector('.m').textContent = `${fmtDate(a.date)} · ${a.short}`; b.querySelector('.r').textContent = a.result;
     b.onclick = () => openDetail(a, b);
     li.append(b); return li;
   }));
@@ -152,9 +156,11 @@ function openDetail(a, cardEl) {
   origin = cardEl;
   const img = $('#dImg'), facts = $('#dFacts'), link = $('#dLink');
   img.hidden = !a.image; if (a.image) { img.src = a.image; img.alt = a.title; }
-  $('#dMeta').textContent = a.country ? `${a.country} · ${a.year}` : fmtDate(a.date);
+  $('#dMeta').textContent = [a.country, fmtDate(a.date)].filter(Boolean).join(' · ');
   $('#dTitle').textContent = a.name || a.title;
   $('#dResult').textContent = a.result || a.subtitle || ''; $('#dBody').textContent = a.details || '';
+  $('#dRole').hidden = !a.role; $('#dRole').textContent = a.role ? `Role: ${a.role}` : '';
+  $('#dRobot').hidden = !a.robot; $('#dRobot').replaceChildren(...(a.robot ? [Object.assign(document.createElement('b'), { textContent: 'Robot' }), ' ' + a.robot] : []));
   facts.replaceChildren(...(a.facts || []).flatMap(([k, v]) => { const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd]; }));
   facts.hidden = !a.facts; link.hidden = !a.link; if (a.link) link.href = a.link;
   detail.hidden = false; detail.classList.remove('closing'); inner.scrollTop = 0;
@@ -182,6 +188,9 @@ addEventListener('keydown', (e) => {
 const sections = { certificates, projects, websites };
 const TABS = ['achievements', 'projects', 'websites', 'certificates'];
 const tabs = [...document.querySelectorAll('.tab')];
+const orient = matchMedia('(min-width:640px)');
+const setOrient = () => $('.tabs').setAttribute('aria-orientation', orient.matches ? 'vertical' : 'horizontal');
+orient.addEventListener('change', setOrient); setOrient();
 const globeView = $('#view-achievements'), gridView = $('#view-grid');
 let tab = null;
 function fmtDate(d) { return /^\d{4}$/.test(d || '') ? d : d ? new Date(d + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''; }
@@ -216,7 +225,7 @@ function renderGrid(name) {
 tabs.forEach((t, i) => {
   t.onclick = () => { location.hash = t.dataset.tab; };
   t.onkeydown = (e) => {
-    const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return;
+    const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]; if (!d) return;
     e.preventDefault(); location.hash = tabs[(i + d + tabs.length) % tabs.length].dataset.tab; showTab(location.hash.slice(1), true);
   };
 });

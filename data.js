@@ -5,15 +5,26 @@ export const profile = {
 };
 
 /* Achievement: shown on the globe, grouped by country.
-   { id, name, year, country, result, short, details }
-   `country` must match world-atlas `properties.name` (e.g. 'Japan', 'United States of America'). */
-// EXAMPLE DATA — not real results.
+   { id, name, date: 'YYYY-MM-DD' or 'YYYY', country, result, short, role, robot, details? }
+   `country` must match world-atlas `properties.name` (e.g. 'Uzbekistan', 'United States of America'). */
+const WRO = { role: 'Designer, Builder',
+  robot: 'An autonomous Mars rover with a built-in computer, designed to reduce the time it takes for a message to arrive.' };
+const FGC = { role: 'Designer, Builder, Human Player',
+  robot: 'Built to the season requirements to deal with fire by throwing special balls into it.' };
+
 export const achievements = [
-  { id: 'wro-2025', name: 'World Robot Olympiad 2025', year: 2025, country: 'Singapore', result: 'Example: Finalist',
-    short: 'International robotics finals.', details: 'EXAMPLE. Designed and programmed an autonomous robot for the international final. Replace with real description.' },
-  { id: 'sg-hack-2024', name: 'Singapore Youth Hackathon', year: 2024, country: 'Singapore', result: 'Example: 2nd place',
-    short: '48‑hour build sprint.', details: 'EXAMPLE. Built a prototype in 48 hours with a team of three. Replace with real description.' },
+  { id: 'wro-2025-uz', name: 'WRO 2025 · National round', date: '2025', country: 'Uzbekistan', result: '1st place in Uzbekistan',
+    short: 'World Robot Olympiad', ...WRO, details: 'Qualified for the WRO 2025 International Final in Singapore.' },
+  { id: 'wro-2025-sg', name: 'WRO 2025 · International Final', date: '2025-11-27', country: 'Singapore', result: '22nd place',
+    short: 'World Robot Olympiad', ...WRO, details: 'Reached the final after 1st place in the Uzbekistan national round.' },
+  { id: 'fgc-2026-kz', name: 'FGC 2026 · Finals', date: '2026-08-24', country: 'Kazakhstan', result: '2nd place in the finals',
+    short: 'FIRST Global Challenge', ...FGC, details: 'Also placed 4th in the Uzbekistan national round.' },
+  { id: 'fgc-2026-uz', name: 'FGC 2026 · National round', date: '2026', country: 'Uzbekistan', result: '4th place in Uzbekistan',
+    short: 'FIRST Global Challenge', ...FGC, details: 'Went on to take 2nd place in the finals in Kazakhstan.' },
 ];
+
+// Upcoming: shown as a small line in the Achievements view, not on the globe. { name, note }
+export const upcoming = [{ name: 'FTC', note: 'Coming soon' }];
 
 /* Card item (certificates, projects, websites):
    { id, title, date: 'YYYY-MM-DD' or 'YYYY', subtitle, thumb, image, details, facts?: [[label, value], ...], link? }
