@@ -58,10 +58,10 @@ let hovered = null, selected = null;
 const globe = Globe()($('#globe'))
   .backgroundColor('rgba(0,0,0,0)')
   .showAtmosphere(true).atmosphereColor('#7fb8ff').atmosphereAltitude(0.18)
-  .polygonCapColor((f) => has(f) ? (f === hovered || f === selected ? 'rgba(45,212,191,.95)' : 'rgba(45,212,191,.7)') : '#06080b')
-  .polygonSideColor((f) => has(f) ? 'rgba(45,212,191,.35)' : 'rgba(0,0,0,.6)')
-  .polygonStrokeColor((f) => has(f) ? '#a7fff1' : 'rgba(140,160,190,.18)')
-  .polygonAltitude((f) => has(f) ? (f === hovered || f === selected ? 0.03 : 0.018) : 0.006)
+  .polygonCapColor((f) => has(f) ? (f === hovered || f === selected ? '#7fffe9' : ACCENT) : '#06080b')
+  .polygonSideColor((f) => has(f) ? 'rgba(45,212,191,.8)' : 'rgba(0,0,0,.6)')
+  .polygonStrokeColor((f) => has(f) ? '#e6fffb' : 'rgba(140,160,190,.18)')
+  .polygonAltitude((f) => has(f) ? (f === hovered || f === selected ? 0.05 : 0.035) : 0.006)
   .polygonsTransitionDuration(reduced ? 0 : 300)
   .onPolygonHover((f) => {
     hovered = f && has(f) ? f : null;
@@ -85,13 +85,25 @@ let features = [];
 fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json').then((r) => r.json()).then((topo) => {
   features = feature(topo, topo.objects.countries).features;
   globe.polygonsData(features);
-  // pulsing rings so small countries (e.g. Singapore) stay visible
-  globe.ringsData(features.filter(has).map(centroid))
-    .ringColor(() => (t) => `rgba(45,212,191,${1 - t})`).ringMaxRadius(3.5)
-    .ringPropagationSpeed(reduced ? 0 : 1.5).ringRepeatPeriod(reduced ? 0 : 1600);
+  // soft glow halo sized to each highlighted country, so small ones (e.g. Singapore) read as lit land
+  globe.pointsData(features.filter(has).flatMap((f) => [1, 0.55].map((k) => ({ ...centroid(f), name: f.properties.name, r: Math.max(extent(f) * 0.9, 1.8) * k }))))
+    .pointRadius('r').pointAltitude(0.008).pointResolution(48).pointsMerge(false)
+    .pointColor((d) => `rgba(45,212,191,${d.r > 1.5 ? 0.22 : 0.38})`)
+    .pointLabel(() => '').onPointClick((d) => selectCountry(d.name));
+  // one slow, faint ring as a locator for tiny countries
+  globe.ringsData(features.filter(has).map((f) => ({ ...centroid(f), max: Math.max(extent(f) * 1.5, 2.5) })))
+    .ringColor(() => (t) => `rgba(127,255,233,${0.5 * (1 - t)})`).ringMaxRadius('max')
+    .ringPropagationSpeed(reduced ? 0 : 0.8).ringRepeatPeriod(reduced ? 0 : 2600);
   const missing = Object.keys(byCountry).filter((c) => !features.some((f) => f.properties.name === c));
   if (missing.length) console.warn('Countries not found in map data:', missing);
 });
+
+function extent(f) {
+  // rough angular size (degrees) of the country's bounding box
+  const pts = (f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates).flatMap((p) => p[0]);
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+  return Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) / 2;
+}
 
 function centroid(f) {
   // centroid of the largest ring (good enough for camera targeting)
@@ -119,7 +131,7 @@ function selectCountry(name) {
   if (selected) {
     const { lat, lng } = centroid(selected);
     // On desktop shift view so the country sits left of the panel
-    globe.pointOfView({ lat: lat - (innerWidth > 700 ? 0 : 22), lng: lng + (innerWidth > 700 ? 18 : 0), altitude: innerWidth < 700 ? 2.6 : 1.7 }, reduced ? 0 : 1200);
+    globe.pointOfView({ lat: lat - (innerWidth > 700 ? 0 : 6), lng: lng + (innerWidth > 700 ? 6 : 0), altitude: Math.min(Math.max(extent(selected) * 0.08, 0.35), 1.7) * (innerWidth < 700 ? 1.5 : 1) }, reduced ? 0 : 1200);
   }
   list.querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.country === name)));
   $('#panelTitle').textContent = name;

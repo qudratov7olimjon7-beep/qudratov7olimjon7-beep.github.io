@@ -13,10 +13,6 @@ export const achievements = [
     short: 'International robotics finals.', details: 'EXAMPLE. Designed and programmed an autonomous robot for the international final. Replace with real description.' },
   { id: 'sg-hack-2024', name: 'Singapore Youth Hackathon', year: 2024, country: 'Singapore', result: 'Example: 2nd place',
     short: '48‑hour build sprint.', details: 'EXAMPLE. Built a prototype in 48 hours with a team of three. Replace with real description.' },
-  { id: 'jp-robo-2024', name: 'Tokyo Robotics Cup', year: 2024, country: 'Japan', result: 'Example: Gold',
-    short: 'Line‑following category.', details: 'EXAMPLE. Placeholder details for a competition in Japan.' },
-  { id: 'jp-ai-2023', name: 'Asia AI Challenge', year: 2023, country: 'Japan', result: 'Example: Top 10',
-    short: 'Computer vision track.', details: 'EXAMPLE. Placeholder details for a second competition in Japan.' },
 ];
 
 /* Card item (certificates, projects, websites):
