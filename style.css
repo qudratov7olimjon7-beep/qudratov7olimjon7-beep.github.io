@@ -12,6 +12,7 @@ h1,h2{font-family:"Space Grotesk",Inter,sans-serif;margin:0;letter-spacing:-.02e
 .grid{list-style:none;margin:0;padding:0;display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));max-width:1200px}
 .tile{padding:12px;background:var(--card);backdrop-filter:blur(10px)}
 .tile .thumb{display:block;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0d1522;margin-bottom:12px}
+.tile.soon{opacity:.55;cursor:default}.tile.soon .thumb{display:grid;place-items:center;color:var(--accent);font-size:13px;letter-spacing:.08em;text-transform:uppercase;border:1px dashed rgba(45,212,191,.4)}
 .tile .thumb img{width:100%;height:100%;object-fit:cover;object-position:top}
 .empty{display:grid;justify-items:center;text-align:center;margin-top:12vh;color:var(--muted)}
 .empty h2{color:var(--fg);font-size:26px;margin-top:14px}.empty p{margin:4px 0 0}
@@ -23,6 +24,18 @@ h1,h2{font-family:"Space Grotesk",Inter,sans-serif;margin:0;letter-spacing:-.02e
 .d-link{color:var(--accent)}
 .brand{position:fixed;top:28px;left:32px;z-index:8;display:flex;gap:18px;align-items:center;pointer-events:none}
 .brand h1{font-size:clamp(28px,4vw,44px);line-height:1.1;white-space:nowrap}
+/* search popover */
+.search-btn{margin-bottom:6px}
+.search-btn[aria-expanded=true]{color:var(--accent);border-color:var(--accent)}
+.search{position:absolute;left:58px;top:0;width:min(340px,calc(100vw - 80px));background:rgba(12,16,24,.94);border:1px solid var(--line);border-radius:16px;padding:8px;backdrop-filter:blur(12px);box-shadow:0 12px 40px rgba(0,0,0,.5);animation:pop .22s var(--spring)}
+@keyframes pop{from{opacity:0;transform:translateX(-8px) scale(.97)}}
+.search input{width:100%;font:inherit;font-size:15px;color:var(--fg);background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:10px 12px;outline:none}
+.search input:focus{border-color:var(--accent)}
+.sres{list-style:none;margin:6px 0 0;padding:0;max-height:50vh;overflow:auto}
+.sres li{display:flex;align-items:baseline;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:14px}
+.sres li span{color:var(--muted);font-size:12px;margin-left:auto;white-space:nowrap}
+.sres li[aria-selected=true]{background:rgba(45,212,191,.12);color:var(--accent)}
+.sres .none{color:var(--muted);cursor:default}
 /* icon rail: vertical tab stack + collapse toggle */
 .rail{position:fixed;left:44px;top:120px;z-index:8;display:flex;flex-direction:column;align-items:center;gap:10px}
 .tabs{display:flex;flex-direction:column;gap:8px;transition:transform .45s var(--spring),opacity .3s}
@@ -35,7 +48,7 @@ h1,h2{font-family:"Space Grotesk",Inter,sans-serif;margin:0;letter-spacing:-.02e
 .tab:hover::after,.tab:focus-visible::after{opacity:1;transform:translate(0,-50%)}
 .rail-toggle{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:rgba(10,14,22,.8);color:var(--muted);font-size:18px;line-height:1;display:grid;place-items:center;padding:0 0 2px;transition:transform .45s var(--spring),color .2s,border-color .2s}
 .rail-toggle:hover{color:var(--accent);border-color:var(--accent)}
-.rail.collapsed .rail-toggle{transform:translateY(calc(-1 * (46px * 6 + 8px * 5 + 10px)))}
+.rail.collapsed .rail-toggle{transform:translateY(calc(-1 * (46px * 7 + 8px * 6 + 10px)))}
 /* contact + chat pages */
 .page{position:fixed;top:120px;left:120px;right:32px;bottom:32px;z-index:6;max-width:720px}
 .page h2{font-size:26px;margin-bottom:16px}
@@ -97,8 +110,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 @media (max-width:639px){
  .rail{left:8px;top:50%;transform:translateY(-50%)}
  .tab{width:40px;height:40px;border-radius:12px}.tab svg{width:20px;height:20px}
- .rail.collapsed .rail-toggle{transform:translateY(calc(-1 * (40px * 6 + 8px * 5 + 10px)))}
+ .rail.collapsed .rail-toggle{transform:translateY(calc(-1 * (40px * 7 + 8px * 6 + 10px)))}
  .rail.collapsed .tabs{transform:translateX(calc(-100% - 20px))}
+ .search{left:50px;top:-40px}
  .panel{z-index:9}
  .grid-view{top:84px;left:56px;padding:0 12px 24px}.grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
  .page{top:84px;left:58px;right:10px;bottom:12px}

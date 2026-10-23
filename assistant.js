@@ -11,7 +11,7 @@ const contactText = (cs) => cs.map((c) => `${c.label}: ${c.value}${c.type === 'e
 function about() {
   const comps = [...new Set(achievements.map((a) => a.short))];
   return `${profile.name} designs and builds competition robots. He has competed in ${list(comps)}` +
-    (certificates.length ? `, and holds ${list(certificates.map((c) => c.title))}` : '') + '.';
+    (certificates.some((c) => !c.soon) ? `, and holds ${list(certificates.filter((c) => !c.soon).map((c) => c.title))}` : '') + '.';
 }
 function competition(tag, label) {
   const xs = byComp(tag); if (!xs.length) return null;
@@ -27,7 +27,7 @@ const intents = [
       const cs = one.length && one.length < profile.contacts.length ? one : profile.contacts;
       return `You can reach ${first} here:\n${contactText(cs)}`; } },
   { test: /\b(ielts|english|band|certificate|certificates|certified)\b/, reply: () => certificates.length
-      ? certificates.map((c) => `${first} took ${c.title} on ${when(c.date)} — ${c.subtitle}.` +
+      ? certificates.map((c) => c.soon ? `${c.title} is coming soon.` : `${first} took ${c.title} on ${when(c.date)} — ${c.subtitle}.` +
         (c.facts ? ` Section scores: ${c.facts.filter(([k]) => !['Overall', 'CEFR'].includes(k)).map(([k, v]) => `${k} ${v}`).join(', ')}.` : '')).join('\n')
       : `No certificates are listed on this site yet.` },
   { test: /\b(wro|world robot|olympiad|rover|mars)\b/, reply: () => competition('wro', 'the World Robot Olympiad (WRO) 2025') },

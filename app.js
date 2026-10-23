@@ -220,14 +220,14 @@ function render() {
   if (tab === 'achievements') {
     if (byCountry[a]) { if (panelCountry !== a) selectCountry(a); item = byCountry[a].find((x) => x.id === b); }
     else closePanel();
-  } else if (sections[tab]) item = sections[tab].find((x) => x.id === a);
+  } else if (sections[tab]) item = sections[tab].find((x) => x.id === a && !x.soon);
   if (item) { if (openId !== item.id) openDetail(item, document.querySelector(`[data-id="${CSS.escape(item.id)}"]`) || $('#tab-' + tab)); }
   else closeDetail();
 }
 addEventListener('popstate', render);
 
 /* ---------- Tabs ---------- */
-const tabs = [...document.querySelectorAll('.tab')];
+const tabs = [...document.querySelectorAll('.tab[role=tab]')];
 const views = { achievements: $('#view-achievements'), contact: $('#view-contact'), ai: $('#view-ai') };
 const gridView = $('#view-grid');
 let tab = null;
@@ -247,7 +247,7 @@ function showTab(name, focus) {
   if (name === 'ai' && !msgs.children.length) say('bot', `Hi! I can answer questions about ${profile.name.split(/\s+/).pop()} using the info on this site.`);
 }
 function renderGrid(name) {
-  const items = [...sections[name]].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const items = [...sections[name]].sort((a, b) => !!a.soon - !!b.soon || (b.date || '').localeCompare(a.date || ''));
   gridView.setAttribute('aria-labelledby', 'tab-' + name);
   $('#empty').hidden = items.length > 0;
   $('#emptyText').textContent = `${name[0].toUpperCase() + name.slice(1)} will appear here.`;
@@ -257,8 +257,9 @@ function renderGrid(name) {
     b.innerHTML = `<span class="thumb"></span><span class="t"></span><span class="m"></span>`;
     if (it.thumb || it.image) { const im = new Image(); im.src = it.thumb || it.image; im.alt = ''; im.loading = 'lazy'; b.querySelector('.thumb').append(im); }
     b.querySelector('.t').textContent = it.title;
-    b.querySelector('.m').textContent = [fmtDate(it.date), it.subtitle].filter(Boolean).join(' · ');
-    b.onclick = () => go(path(name, it.id));
+    b.querySelector('.m').textContent = it.soon ? '' : [fmtDate(it.date), it.subtitle].filter(Boolean).join(' · ');
+    if (it.soon) { b.disabled = true; b.classList.add('soon'); b.querySelector('.thumb').textContent = 'Coming soon'; }
+    else b.onclick = () => go(path(name, it.id));
     li.append(b); return li;
   }));
 }
@@ -297,6 +298,49 @@ $('#contacts').replaceChildren(...profile.contacts.map((c) => {
   a.querySelector('b').textContent = c.label; a.querySelector('span span').textContent = c.value;
   li.append(a); return li;
 }));
+
+/* ---------- Search: countries, competitions, certificates, websites, projects, sections ---------- */
+const searchBox = $('#search'), sq = $('#sq'), sres = $('#sres'), sBtn = $('#searchBtn');
+const label = (t) => $('#tab-' + t).dataset.tip;
+const index = [
+  ...Object.keys(byCountry).map((c) => ({ t: c, k: 'Country', to: path('achievements', c), s: c + ' ' + byCountry[c].map((a) => a.short).join(' ') })),
+  ...achievements.map((a) => ({ t: a.name, k: a.result, to: path('achievements', a.country, a.id), s: [a.name, a.short, a.country, a.result, a.role, a.robot].join(' ') })),
+  ...Object.entries(sections).flatMap(([sec, items]) => items.map((it) => ({ t: it.title, k: label(sec), to: it.soon ? sec : path(sec, it.id), s: [it.title, it.subtitle, it.details, sec].join(' ') }))),
+  ...TABS.map((t) => ({ t: label(t), k: 'Section', to: t, s: label(t) + ' ' + t })),
+  ...upcoming.map((u) => ({ t: u.name, k: 'Coming soon', to: 'achievements', s: u.name + ' ' + (u.note || '') })),
+];
+let hits = [], sel = 0;
+function runSearch() {
+  const words = sq.value.toLowerCase().split(/\s+/).filter(Boolean);
+  hits = words.length ? index.filter((x) => words.every((w) => x.s.toLowerCase().includes(w))).slice(0, 8) : index.filter((x) => x.k === 'Country');
+  sel = 0; drawHits();
+}
+function drawHits() {
+  if (!hits.length) { sres.replaceChildren(Object.assign(document.createElement('li'), { className: 'none', textContent: 'Nothing found' })); sq.removeAttribute('aria-activedescendant'); return; }
+  sres.replaceChildren(...hits.map((x, i) => {
+    const li = document.createElement('li'); li.id = 'sr' + i; li.setAttribute('role', 'option'); li.setAttribute('aria-selected', String(i === sel));
+    li.append(x.t, Object.assign(document.createElement('span'), { textContent: x.k }));
+    li.onmousedown = (e) => { e.preventDefault(); pick(x); }; li.onmousemove = () => { if (sel !== i) { sel = i; drawHits(); } };
+    return li;
+  }));
+  sq.setAttribute('aria-activedescendant', 'sr' + sel);
+  sres.children[sel]?.scrollIntoView({ block: 'nearest' });
+}
+function openSearch() { if (rail.classList.contains('collapsed')) setCollapsed(false); searchBox.hidden = false; sBtn.setAttribute('aria-expanded', 'true'); sq.value = ''; runSearch(); sq.focus(); }
+function closeSearch(refocus) { if (searchBox.hidden) return; searchBox.hidden = true; sBtn.setAttribute('aria-expanded', 'false'); if (refocus) sBtn.focus(); }
+function pick(x) { closeSearch(); go(x.to); }
+sBtn.onclick = () => (searchBox.hidden ? openSearch() : closeSearch(true));
+sq.oninput = runSearch;
+sq.onkeydown = (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (hits.length) { sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length; drawHits(); } }
+  else if (e.key === 'Enter') { e.preventDefault(); hits[sel] && pick(hits[sel]); }
+  else if (e.key === 'Escape') { e.stopPropagation(); closeSearch(true); }
+};
+sq.onblur = () => setTimeout(() => { if (!searchBox.contains(document.activeElement) && document.activeElement !== sBtn) closeSearch(); }, 0);
+addEventListener('keydown', (e) => {
+  const typing = /INPUT|TEXTAREA/.test(document.activeElement?.tagName);
+  if ((e.key === '/' && !typing) || (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey))) { e.preventDefault(); openSearch(); }
+}, true);
 
 /* ---------- Ask AI (real model on Olimjon's laptop; falls back to local answers from data.js) ---------- */
 const AI_URL = 'https://daily-cleft-babbling.ngrok-free.dev/chat';

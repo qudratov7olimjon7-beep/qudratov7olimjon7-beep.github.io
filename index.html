@@ -18,6 +18,7 @@
   </header>
   <nav class="rail" id="rail" aria-label="Sections">
     <div class="tabs" id="tabs" role="tablist" aria-label="Sections">
+      <button class="tab search-btn" id="searchBtn" role="presentation" aria-label="Search (press /)" data-tip="Search" aria-haspopup="dialog" aria-expanded="false" aria-controls="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
       <button role="tab" class="tab" id="tab-achievements" data-tab="achievements" aria-label="Achievements" data-tip="Achievements" aria-controls="view-achievements"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></button>
       <button role="tab" class="tab" id="tab-projects" data-tab="projects" aria-label="Projects" data-tip="Projects" aria-controls="view-grid"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.1L3 17.7 6.3 21l6.3-6.3a4 4 0 0 0 5.1-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg></button>
       <button role="tab" class="tab" id="tab-websites" data-tab="websites" aria-label="Websites" data-tip="Websites" aria-controls="view-grid"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></button>
@@ -26,6 +27,10 @@
       <button role="tab" class="tab" id="tab-ai" data-tab="ai" aria-label="Ask AI" data-tip="Ask AI" aria-controls="view-ai"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M12 8.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></svg></button>
     </div>
     <button class="rail-toggle" id="railToggle" aria-controls="tabs" aria-expanded="true" aria-label="Hide sections"><span aria-hidden="true">‹</span></button>
+    <div class="search" id="search" role="dialog" aria-label="Search" hidden>
+      <input id="sq" type="search" autocomplete="off" placeholder="Search countries, competitions…" aria-label="Search" role="combobox" aria-expanded="true" aria-controls="sres" aria-autocomplete="list">
+      <ul id="sres" class="sres" role="listbox" aria-label="Results"></ul>
+    </div>
   </nav>
   <div id="view-achievements" class="view" role="tabpanel" aria-labelledby="tab-achievements">
   <div id="globe" role="img" aria-label="Interactive globe. Highlighted countries have achievements."></div>

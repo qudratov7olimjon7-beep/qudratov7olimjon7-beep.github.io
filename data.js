@@ -35,15 +35,19 @@ export const upcoming = [{ name: 'FTC', note: 'Coming soon' }];
 
 /* Card item (certificates, projects, websites):
    { id, title, date: 'YYYY-MM-DD' or 'YYYY', subtitle, thumb, image, details, facts?: [[label, value], ...], link? }
-   thumb = small preview image, image = full image shown when opened (both optional). */
+   thumb = small preview image, image = full image shown when opened (both optional).
+   soon: true = shown as a dimmed 'Coming soon' tile that can't be opened. */
 export const certificates = [
   { id: 'ielts-2026', title: 'IELTS Academic', date: '2026-07-19', subtitle: 'Overall band 7.0 · CEFR C1',
     thumb: 'assets/certs/ielts-2026-thumb.jpg', image: 'assets/certs/ielts-2026.jpg',
     details: 'Test Report Form, British Council / IDP / Cambridge English. Personal identifiers redacted.',
     facts: [['Overall', '7.0'], ['CEFR', 'C1'], ['Listening', '7.5'], ['Reading', '7.5'], ['Writing', '6.0'], ['Speaking', '6.5']] },
+  { id: 'ap-calc-bc', title: 'AP Calculus BC', subtitle: 'Coming soon', soon: true },
 ];
 
-export const projects = [];
+export const projects = [
+  { id: 'ai-conveyor', title: 'AI-powered conveyor belt', subtitle: 'Coming soon', soon: true },
+];
 export const websites = [
   { id: 'portfolio', title: 'Personal Portfolio', date: '2026', subtitle: 'This site: interactive 3D globe of my achievements',
     thumb: 'assets/websites/portfolio-thumb.jpg', image: 'assets/websites/portfolio-thumb.jpg', link: 'https://qudratov7olimjon7-beep.github.io/',
