@@ -2,6 +2,13 @@
 export const profile = {
   name: 'Qudratov Olimjon',
   avatar: 'assets/avatar.jpg', // square image; initials fallback shows if the file is missing
+  // type picks the icon: email | telegram | linkedin | github
+  contacts: [
+    { type: 'email', label: 'Email', value: 'qudratov7olimjon7@gmail.com', href: 'mailto:qudratov7olimjon7@gmail.com' },
+    { type: 'telegram', label: 'Telegram', value: '@A24446666688888888', href: 'https://t.me/A24446666688888888' },
+    { type: 'linkedin', label: 'LinkedIn', value: 'olimjon-qudratov-169528436', href: 'https://www.linkedin.com/in/olimjon-qudratov-169528436' },
+    { type: 'github', label: 'GitHub', value: 'qudratov7olimjon7-beep', href: 'https://github.com/qudratov7olimjon7-beep' },
+  ],
 };
 
 /* Achievement: shown on the globe, grouped by country.

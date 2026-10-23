@@ -1,6 +1,7 @@
 import Globe from 'globe.gl';
 import { feature } from 'topojson-client';
 import { profile, achievements, upcoming, certificates, projects, websites } from './data.js';
+import { answer, suggestions } from './assistant.js';
 
 const $ = (s) => document.querySelector(s);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -70,7 +71,7 @@ const globe = Globe()($('#globe'))
     else tip.hidden = true;
     globe.polygonAltitude(globe.polygonAltitude());
   })
-  .onPolygonClick((f) => has(f) && selectCountry(f.properties.name));
+  .onPolygonClick((f) => has(f) && go(path('achievements', f.properties.name)));
 // ocean slightly lighter than space, faint specular sheen
 const mat = globe.globeMaterial();
 mat.color.set('#0b1a2e'); mat.emissive?.set('#050b16'); if ('shininess' in mat) { mat.specular.set('#1c3350'); mat.shininess = 12; }
@@ -85,6 +86,7 @@ let features = [];
 fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json').then((r) => r.json()).then((topo) => {
   features = feature(topo, topo.objects.countries).features;
   globe.polygonsData(features);
+  if (panelCountry) focusCountry(panelCountry);
   const missing = Object.keys(byCountry).filter((c) => !features.some((f) => f.properties.name === c));
   if (missing.length) console.warn('Countries not found in map data:', missing);
 });
@@ -109,7 +111,7 @@ const list = $('#countryList');
 for (const c of Object.keys(byCountry)) {
   const b = document.createElement('button');
   b.className = 'chip'; b.textContent = `${c} (${byCountry[c].length})`; b.dataset.country = c; b.setAttribute('aria-pressed', 'false');
-  b.onclick = () => selectCountry(c);
+  b.onclick = () => go(path('achievements', c));
   list.append(b);
 }
 
@@ -119,41 +121,50 @@ $('#upcoming').hidden = !upcoming.length;
 
 /* ---------- Panel ---------- */
 const panel = $('#panel');
-function selectCountry(name) {
+let panelCountry = null;
+function focusCountry(name) {
   selected = features.find((f) => f.properties.name === name) || null;
   globe.polygonAltitude(globe.polygonAltitude());
   ctl.autoRotate = false;
-  if (selected) {
-    const { lat, lng } = centroid(selected);
-    // On desktop shift view so the country sits left of the panel
-    globe.pointOfView({ lat: lat - (innerWidth > 700 ? 0 : 6), lng: lng + (innerWidth > 700 ? 6 : 0), altitude: Math.min(Math.max(extent(selected) * 0.08, 0.35), 1.7) * (innerWidth < 700 ? 1.5 : 1) }, reduced ? 0 : 1200);
-  }
+  if (!selected) return;
+  const { lat, lng } = centroid(selected);
+  // On desktop shift view so the country sits left of the panel
+  globe.pointOfView({ lat: lat - (innerWidth > 700 ? 0 : 6), lng: lng + (innerWidth > 700 ? 6 : 0), altitude: Math.min(Math.max(extent(selected) * 0.08, 0.35), 1.7) * (innerWidth < 700 ? 1.5 : 1) }, reduced ? 0 : 1200);
+}
+function selectCountry(name) {
+  panelCountry = name;
+  focusCountry(name);
   list.querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.country === name)));
   $('#panelTitle').textContent = name;
   $('#cards').replaceChildren(...byCountry[name].sort((a, b) => b.date.localeCompare(a.date)).map((a) => {
     const li = document.createElement('li');
     const b = document.createElement('button');
-    b.className = 'card';
+    b.className = 'card'; b.dataset.id = a.id;
     b.innerHTML = `<span class="t"></span><span class="m"></span><span class="r"></span>`;
     b.querySelector('.t').textContent = a.name; b.querySelector('.m').textContent = `${fmtDate(a.date)} · ${a.short}`; b.querySelector('.r').textContent = a.result;
-    b.onclick = () => openDetail(a, b);
+    b.onclick = () => go(path('achievements', name, a.id));
     li.append(b); return li;
   }));
   panel.hidden = false;
   panel.querySelector('.card')?.focus({ preventScroll: true });
 }
-$('#panelClose').onclick = () => { panel.hidden = true; selected = null; globe.polygonAltitude(globe.polygonAltitude()); list.querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-pressed', 'false')); };
+function closePanel() {
+  if (!panelCountry) return;
+  panel.hidden = true; panelCountry = selected = null; globe.polygonAltitude(globe.polygonAltitude());
+  list.querySelectorAll('.chip').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+}
+$('#panelClose').onclick = () => closeTo(path('achievements'));
 
 /* ---------- Detail (FLIP app-open) ---------- */
 const detail = $('#detail'), inner = detail.querySelector('.detail-inner');
 const EASE = 'cubic-bezier(.32,1.28,.48,1)', DUR = reduced ? 0 : 520;
-let origin = null;
+let origin = null, openId = null;
 function flipFrom(el) {
   const a = el.getBoundingClientRect(), b = inner.getBoundingClientRect();
   return `translate(${a.left - b.left}px,${a.top - b.top}px) scale(${a.width / b.width},${a.height / b.height})`;
 }
 function openDetail(a, cardEl) {
-  origin = cardEl;
+  origin = cardEl; openId = a.id;
   const img = $('#dImg'), facts = $('#dFacts'), link = $('#dLink');
   img.hidden = !a.image; if (a.image) { img.src = a.image; img.alt = a.title; }
   $('#dMeta').textContent = [a.country, fmtDate(a.date)].filter(Boolean).join(' · ');
@@ -171,39 +182,69 @@ function openDetail(a, cardEl) {
 }
 function closeDetail() {
   if (detail.hidden) return;
+  openId = null;
   const anim = inner.animate([{ transform: 'none', opacity: 1 }, { transform: flipFrom(origin), opacity: 0 }],
     { duration: DUR * 0.75, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
   detail.classList.add('closing');
-  anim.onfinish = () => { detail.hidden = true; anim.cancel(); origin?.focus(); };
-  if (!DUR) anim.onfinish();
+  // timer, not onfinish: state must settle even if frames are starved
+  setTimeout(() => { anim.cancel(); if (openId) return; detail.hidden = true; origin?.isConnected && origin.focus(); }, DUR * 0.75);
 }
-$('#detailClose').onclick = closeDetail;
-detail.addEventListener('click', (e) => e.target === detail && closeDetail());
+const parentHash = () => route().slice(0, -1).join('/');
+const closeCard = () => closeTo(parentHash());
+$('#detailClose').onclick = closeCard;
+detail.addEventListener('click', (e) => e.target === detail && closeCard());
 addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') detail.hidden ? (tab === 'achievements' && $('#panelClose').click()) : closeDetail();
+  if (e.key === 'Escape') { if (!detail.hidden) closeCard(); else if (tab === 'achievements' && panelCountry) closeTo(path('achievements')); }
   if (e.key === 'Tab' && !detail.hidden) { e.preventDefault(); $('#detailClose').focus(); }
 });
 
-/* ---------- Tabs (hash-routed) ---------- */
+/* ---------- Router: #tab[/country][/itemId], every step is a history entry ---------- */
 const sections = { certificates, projects, websites };
-const TABS = ['achievements', 'projects', 'websites', 'certificates'];
+const TABS = ['achievements', 'projects', 'websites', 'certificates', 'contact', 'ai'];
+const path = (...parts) => parts.map(encodeURIComponent).join('/');
+const route = () => location.hash.slice(1).split('/').filter(Boolean).map(decodeURIComponent);
+const here = () => location.hash.slice(1);
+function go(hash) {
+  if (hash === here()) return;
+  history.pushState({ from: here() }, '', '#' + hash); render();
+}
+// Leave a card/panel: step back if we came from exactly there, otherwise replace so Back never loops.
+function closeTo(hash) {
+  if (history.state?.from === hash) history.back();
+  else { history.replaceState(history.state, '', '#' + hash); render(); }
+}
+function render() {
+  const [t = 'achievements', a, b] = route();
+  showTab(TABS.includes(t) ? t : 'achievements');
+  let item = null;
+  if (tab === 'achievements') {
+    if (byCountry[a]) { if (panelCountry !== a) selectCountry(a); item = byCountry[a].find((x) => x.id === b); }
+    else closePanel();
+  } else if (sections[tab]) item = sections[tab].find((x) => x.id === a);
+  if (item) { if (openId !== item.id) openDetail(item, document.querySelector(`[data-id="${CSS.escape(item.id)}"]`) || $('#tab-' + tab)); }
+  else closeDetail();
+}
+addEventListener('popstate', render);
+
+/* ---------- Tabs ---------- */
 const tabs = [...document.querySelectorAll('.tab')];
-const orient = matchMedia('(min-width:640px)');
-const setOrient = () => $('.tabs').setAttribute('aria-orientation', orient.matches ? 'vertical' : 'horizontal');
-orient.addEventListener('change', setOrient); setOrient();
-const globeView = $('#view-achievements'), gridView = $('#view-grid');
+const views = { achievements: $('#view-achievements'), contact: $('#view-contact'), ai: $('#view-ai') };
+const gridView = $('#view-grid');
 let tab = null;
 function fmtDate(d) { return /^\d{4}$/.test(d || '') ? d : d ? new Date(d + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''; }
 function showTab(name, focus) {
-  if (!TABS.includes(name)) name = 'achievements';
   if (name === tab) return;
   tab = name;
-  tabs.forEach((t) => { const on = t.dataset.tab === name; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on) { t.scrollIntoView({ block: 'nearest', inline: 'nearest' }); if (focus) t.focus(); } });
+  tabs.forEach((t) => { const on = t.dataset.tab === name; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
   const isGlobe = name === 'achievements';
-  globeView.classList.toggle('off', !isGlobe); globeView.inert = !isGlobe;
+  views.achievements.classList.toggle('off', !isGlobe); views.achievements.inert = !isGlobe;
   ctl.autoRotate = isGlobe && !reduced && !selected;
-  gridView.hidden = isGlobe;
-  if (!isGlobe) renderGrid(name);
+  views.contact.hidden = name !== 'contact'; views.ai.hidden = name !== 'ai';
+  gridView.hidden = !sections[name];
+  if (sections[name]) renderGrid(name);
+  const v = sections[name] ? gridView : views[name];
+  if (!isGlobe) { v.classList.remove('in'); void v.offsetWidth; v.classList.add('in'); }
+  if (name === 'ai' && !msgs.children.length) say('bot', `Hi! I can answer questions about ${profile.name.split(/\s+/).pop()} using the info on this site.`);
 }
 function renderGrid(name) {
   const items = [...sections[name]].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -212,22 +253,65 @@ function renderGrid(name) {
   $('#emptyText').textContent = `${name[0].toUpperCase() + name.slice(1)} will appear here.`;
   $('#grid').replaceChildren(...items.map((it) => {
     const li = document.createElement('li'), b = document.createElement('button');
-    b.className = 'card tile';
+    b.className = 'card tile'; b.dataset.id = it.id;
     b.innerHTML = `<span class="thumb"></span><span class="t"></span><span class="m"></span>`;
     if (it.thumb || it.image) { const im = new Image(); im.src = it.thumb || it.image; im.alt = ''; im.loading = 'lazy'; b.querySelector('.thumb').append(im); }
     b.querySelector('.t').textContent = it.title;
     b.querySelector('.m').textContent = [fmtDate(it.date), it.subtitle].filter(Boolean).join(' · ');
-    b.onclick = () => openDetail(it, b);
+    b.onclick = () => go(path(name, it.id));
     li.append(b); return li;
   }));
-  gridView.classList.remove('in'); void gridView.offsetWidth; gridView.classList.add('in');
 }
 tabs.forEach((t, i) => {
-  t.onclick = () => { location.hash = t.dataset.tab; };
+  t.onclick = () => go(t.dataset.tab);
   t.onkeydown = (e) => {
     const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]; if (!d) return;
-    e.preventDefault(); location.hash = tabs[(i + d + tabs.length) % tabs.length].dataset.tab; showTab(location.hash.slice(1), true);
+    e.preventDefault(); const n = tabs[(i + d + tabs.length) % tabs.length]; go(n.dataset.tab); n.focus();
   };
 });
-addEventListener('hashchange', () => { if (!detail.hidden) closeDetail(); showTab(location.hash.slice(1)); });
-showTab(location.hash.slice(1));
+$('#tabs').setAttribute('aria-orientation', 'vertical');
+
+/* ---------- Collapse toggle ---------- */
+const rail = $('#rail'), toggle = $('#railToggle');
+function setCollapsed(c) {
+  rail.classList.toggle('collapsed', c); $('#tabs').inert = c;
+  toggle.setAttribute('aria-expanded', String(!c)); toggle.setAttribute('aria-label', c ? 'Show sections' : 'Hide sections');
+  toggle.firstElementChild.textContent = c ? '›' : '‹';
+  try { localStorage.setItem('tabsCollapsed', c ? '1' : '0'); } catch {}
+}
+toggle.onclick = () => setCollapsed(!rail.classList.contains('collapsed'));
+try { setCollapsed(localStorage.getItem('tabsCollapsed') === '1'); } catch { setCollapsed(false); }
+
+/* ---------- Contact ---------- */
+const ICON = {
+  email: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  telegram: '<path d="M21 4 3 11l6 2 2 6 3-4 5 4z"/><path d="m9 13 12-9"/>',
+  linkedin: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>',
+  github: '<path d="M9 19c-4 1.5-4-2-6-2.5M15 21v-3.5a3 3 0 0 0-.8-2.3c2.7-.3 5.5-1.3 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6 0C6.6 2.5 5.6 2.8 5.6 2.8a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 4.2 9.2c0 4.6 2.8 5.7 5.5 6A3 3 0 0 0 9 17.5V21"/>',
+};
+$('#contacts').replaceChildren(...profile.contacts.map((c) => {
+  const li = document.createElement('li'), a = document.createElement('a');
+  a.className = 'contact'; a.href = c.href;
+  if (c.type !== 'email') { a.target = '_blank'; a.rel = 'noopener'; }
+  a.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON[c.type] || ICON.email}</svg><span><b></b><span></span></span>`;
+  a.querySelector('b').textContent = c.label; a.querySelector('span span').textContent = c.value;
+  li.append(a); return li;
+}));
+
+/* ---------- Ask AI (local, answers only from data.js) ---------- */
+const msgs = $('#msgs'), q = $('#q');
+function say(who, text) {
+  const li = document.createElement('li'); li.className = 'msg ' + who; li.textContent = text;
+  msgs.append(li); li.scrollIntoView({ block: 'end', behavior: reduced ? 'auto' : 'smooth' }); return li;
+}
+function ask(text) {
+  text = text.trim(); if (!text) return;
+  say('me', text); q.value = '';
+  const typing = say('bot typing', ''); typing.innerHTML = '<i></i><i></i><i></i>'; typing.setAttribute('aria-label', 'Typing');
+  setTimeout(() => { typing.remove(); say('bot', answer(text)); }, reduced ? 0 : 550);
+}
+$('#ask').onsubmit = (e) => { e.preventDefault(); ask(q.value); };
+$('#suggest').replaceChildren(...suggestions.map((s) => Object.assign(document.createElement('button'), { type: 'button', className: 'chip', textContent: s, onclick: () => ask(s) })));
+
+history.replaceState(history.state, '', '#' + (here() || 'achievements'));
+render();
