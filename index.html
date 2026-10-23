@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Qudratov Olimjon — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{"imports":{"globe.gl":"https://esm.sh/globe.gl@2.41.4","topojson-client":"https://esm.sh/topojson-client@3.1.0"}}</script>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<main>
+  <header class="brand">
+    <div class="avatar" id="avatar"></div>
+    <div>
+      <h1 id="name"></h1>
+      <div class="tabs" role="tablist" aria-label="Sections">
+        <button role="tab" class="tab" id="tab-achievements" data-tab="achievements" aria-controls="view-achievements">Achievements</button>
+        <button role="tab" class="tab" id="tab-projects" data-tab="projects" aria-controls="view-grid">Projects</button>
+        <button role="tab" class="tab" id="tab-websites" data-tab="websites" aria-controls="view-grid">Websites</button>
+        <button role="tab" class="tab" id="tab-certificates" data-tab="certificates" aria-controls="view-grid">Certificates</button>
+      </div>
+    </div>
+  </header>
+  <div id="view-achievements" class="view" role="tabpanel" aria-labelledby="tab-achievements">
+  <div id="globe" role="img" aria-label="Interactive globe. Highlighted countries have achievements."></div>
+  <div id="tip" role="status" hidden></div>
+  <nav class="countries" id="countryList" aria-label="Countries with achievements"></nav>
+  <section id="panel" class="panel" aria-labelledby="panelTitle" hidden>
+    <div class="panel-head"><h2 id="panelTitle"></h2><button class="icon-btn" id="panelClose" aria-label="Close panel">×</button></div>
+    <ul id="cards" class="cards"></ul>
+  </section>
+  </div>
+  <section id="view-grid" class="view grid-view" role="tabpanel" hidden>
+    <ul id="grid" class="grid"></ul>
+    <div id="empty" class="empty" hidden><span class="empty-dot"></span><h2>Coming soon</h2><p id="emptyText"></p></div>
+  </section>
+</main>
+<div id="detail" class="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
+  <div class="detail-inner">
+    <button class="icon-btn" id="detailClose" aria-label="Close details">×</button>
+    <img id="dImg" class="d-img" alt="" hidden><p class="meta" id="dMeta"></p><h2 id="dTitle"></h2><p class="result" id="dResult"></p><dl id="dFacts" class="facts" hidden></dl><p id="dBody"></p><a id="dLink" class="d-link" target="_blank" rel="noopener" hidden>Open ↗</a>
+  </div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
