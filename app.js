@@ -298,17 +298,28 @@ $('#contacts').replaceChildren(...profile.contacts.map((c) => {
   li.append(a); return li;
 }));
 
-/* ---------- Ask AI (local, answers only from data.js) ---------- */
-const msgs = $('#msgs'), q = $('#q');
+/* ---------- Ask AI (real model on Olimjon's laptop; falls back to local answers from data.js) ---------- */
+const AI_URL = 'https://daily-cleft-babbling.ngrok-free.dev/chat';
+const msgs = $('#msgs'), q = $('#q'), convo = [];
 function say(who, text) {
   const li = document.createElement('li'); li.className = 'msg ' + who; li.textContent = text;
   msgs.append(li); li.scrollIntoView({ block: 'end', behavior: reduced ? 'auto' : 'smooth' }); return li;
 }
-function ask(text) {
+async function remote() {
+  const r = await fetch(AI_URL, { method: 'POST', signal: AbortSignal.timeout(90000),
+    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' },
+    body: JSON.stringify({ messages: convo.slice(-8) }) });
+  if (!r.ok) throw new Error(r.status);
+  const { reply } = await r.json(); if (!reply) throw new Error('empty');
+  return reply;
+}
+async function ask(text) {
   text = text.trim(); if (!text) return;
-  say('me', text); q.value = '';
+  say('me', text); q.value = ''; convo.push({ role: 'user', content: text });
   const typing = say('bot typing', ''); typing.innerHTML = '<i></i><i></i><i></i>'; typing.setAttribute('aria-label', 'Typing');
-  setTimeout(() => { typing.remove(); say('bot', answer(text)); }, reduced ? 0 : 550);
+  let reply; try { reply = await remote(); } catch { reply = answer(text); }
+  convo.push({ role: 'assistant', content: reply });
+  typing.remove(); say('bot', reply);
 }
 $('#ask').onsubmit = (e) => { e.preventDefault(); ask(q.value); };
 $('#suggest').replaceChildren(...suggestions.map((s) => Object.assign(document.createElement('button'), { type: 'button', className: 'chip', textContent: s, onclick: () => ask(s) })));
