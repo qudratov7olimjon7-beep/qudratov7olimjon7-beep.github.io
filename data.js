@@ -16,7 +16,7 @@ export const achievements = [
 ];
 
 /* Card item (certificates, projects, websites):
-   { id, title, date: 'YYYY-MM-DD', subtitle, thumb, image, details, facts?: [[label, value], ...], link? }
+   { id, title, date: 'YYYY-MM-DD' or 'YYYY', subtitle, thumb, image, details, facts?: [[label, value], ...], link? }
    thumb = small preview image, image = full image shown when opened (both optional). */
 export const certificates = [
   { id: 'ielts-2026', title: 'IELTS Academic', date: '2026-07-19', subtitle: 'Overall band 7.0 · CEFR C1',
@@ -26,4 +26,8 @@ export const certificates = [
 ];
 
 export const projects = [];
-export const websites = [];
+export const websites = [
+  { id: 'portfolio', title: 'Personal Portfolio', date: '2026', subtitle: 'This site: interactive 3D globe of my achievements',
+    thumb: 'assets/websites/portfolio-thumb.jpg', image: 'assets/websites/portfolio-thumb.jpg', link: 'https://qudratov7olimjon7-beep.github.io/',
+    details: 'A 3D Earth showing my achievements by country, a star field that reacts to the cursor, Apple-style card animations, and tabs for achievements, projects, websites and certificates. Built with HTML, CSS, JavaScript and globe.gl / three.js.' },
+];

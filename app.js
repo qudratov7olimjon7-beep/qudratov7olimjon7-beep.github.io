@@ -58,10 +58,10 @@ let hovered = null, selected = null;
 const globe = Globe()($('#globe'))
   .backgroundColor('rgba(0,0,0,0)')
   .showAtmosphere(true).atmosphereColor('#7fb8ff').atmosphereAltitude(0.18)
-  .polygonCapColor((f) => has(f) ? (f === hovered || f === selected ? '#7fffe9' : ACCENT) : '#06080b')
-  .polygonSideColor((f) => has(f) ? 'rgba(45,212,191,.8)' : 'rgba(0,0,0,.6)')
-  .polygonStrokeColor((f) => has(f) ? '#e6fffb' : 'rgba(140,160,190,.18)')
-  .polygonAltitude((f) => has(f) ? (f === hovered || f === selected ? 0.05 : 0.035) : 0.006)
+  .polygonCapColor((f) => has(f) ? (f === hovered || f === selected ? 'rgba(45,212,191,.95)' : 'rgba(45,212,191,.7)') : '#06080b')
+  .polygonSideColor((f) => has(f) ? 'rgba(45,212,191,.35)' : 'rgba(0,0,0,.6)')
+  .polygonStrokeColor((f) => has(f) ? '#a7fff1' : 'rgba(140,160,190,.18)')
+  .polygonAltitude((f) => has(f) ? (f === hovered || f === selected ? 0.03 : 0.018) : 0.006)
   .polygonsTransitionDuration(reduced ? 0 : 300)
   .onPolygonHover((f) => {
     hovered = f && has(f) ? f : null;
@@ -85,15 +85,6 @@ let features = [];
 fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json').then((r) => r.json()).then((topo) => {
   features = feature(topo, topo.objects.countries).features;
   globe.polygonsData(features);
-  // soft glow halo sized to each highlighted country, so small ones (e.g. Singapore) read as lit land
-  globe.pointsData(features.filter(has).flatMap((f) => [1, 0.55].map((k) => ({ ...centroid(f), name: f.properties.name, r: Math.max(extent(f) * 0.9, 1.8) * k }))))
-    .pointRadius('r').pointAltitude(0.008).pointResolution(48).pointsMerge(false)
-    .pointColor((d) => `rgba(45,212,191,${d.r > 1.5 ? 0.22 : 0.38})`)
-    .pointLabel(() => '').onPointClick((d) => selectCountry(d.name));
-  // one slow, faint ring as a locator for tiny countries
-  globe.ringsData(features.filter(has).map((f) => ({ ...centroid(f), max: Math.max(extent(f) * 1.5, 2.5) })))
-    .ringColor(() => (t) => `rgba(127,255,233,${0.5 * (1 - t)})`).ringMaxRadius('max')
-    .ringPropagationSpeed(reduced ? 0 : 0.8).ringRepeatPeriod(reduced ? 0 : 2600);
   const missing = Object.keys(byCountry).filter((c) => !features.some((f) => f.properties.name === c));
   if (missing.length) console.warn('Countries not found in map data:', missing);
 });
@@ -193,7 +184,7 @@ const TABS = ['achievements', 'projects', 'websites', 'certificates'];
 const tabs = [...document.querySelectorAll('.tab')];
 const globeView = $('#view-achievements'), gridView = $('#view-grid');
 let tab = null;
-function fmtDate(d) { return d ? new Date(d + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''; }
+function fmtDate(d) { return /^\d{4}$/.test(d || '') ? d : d ? new Date(d + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''; }
 function showTab(name, focus) {
   if (!TABS.includes(name)) name = 'achievements';
   if (name === tab) return;
