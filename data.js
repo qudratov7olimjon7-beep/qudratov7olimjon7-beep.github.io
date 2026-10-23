@@ -17,10 +17,10 @@ export const achievements = [
     short: 'World Robot Olympiad', ...WRO, details: 'Qualified for the WRO 2025 International Final in Singapore.' },
   { id: 'wro-2025-sg', name: 'WRO 2025 · International Final', date: '2025-11-27', country: 'Singapore', result: '22nd place',
     short: 'World Robot Olympiad', ...WRO, details: 'Reached the final after 1st place in the Uzbekistan national round.' },
-  { id: 'fgc-2026-kz', name: 'FGC 2026 · Finals', date: '2026-08-24', country: 'Kazakhstan', result: '2nd place in the finals',
+  { id: 'fgc-2026-kz', name: 'FGC 2026 · Kazakhstan', date: '2026-08-24', country: 'Kazakhstan', result: '2nd place',
     short: 'FIRST Global Challenge', ...FGC, details: 'Also placed 4th in the Uzbekistan national round.' },
   { id: 'fgc-2026-uz', name: 'FGC 2026 · National round', date: '2026', country: 'Uzbekistan', result: '4th place in Uzbekistan',
-    short: 'FIRST Global Challenge', ...FGC, details: 'Went on to take 2nd place in the finals in Kazakhstan.' },
+    short: 'FIRST Global Challenge', ...FGC, details: 'Also took 2nd place at a competition in Kazakhstan.' },
 ];
 
 // Upcoming: shown as a small line in the Achievements view, not on the globe. { name, note }
