@@ -28,7 +28,7 @@ const intents = [
       return `You can reach ${first} here:\n${contactText(cs)}`; } },
   { test: /\b(ielts|english|band|certificate|certificates|certified)\b/, reply: () => certificates.length
       ? certificates.map((c) => c.soon ? `${c.title} is coming soon.` : `${first} took ${c.title} on ${when(c.date)} — ${c.subtitle}.` +
-        (c.facts ? ` Section scores: ${c.facts.filter(([k]) => !['Overall', 'CEFR'].includes(k)).map(([k, v]) => `${k} ${v}`).join(', ')}.` : '')).join('\n')
+        (c.table ? ` Section scores: ${c.table.rows.filter(([k]) => !['Overall', 'CEFR level'].includes(k)).map(([k, v]) => `${k} ${v}`).join(', ')}.` : '')).join('\n')
       : `No certificates are listed on this site yet.` },
   { test: /\b(wro|world robot|olympiad|rover|mars)\b/, reply: () => competition('wro', 'the World Robot Olympiad (WRO) 2025') },
   { test: /\b(fgc|first global|fire)\b/, reply: () => competition('fgc', 'the FIRST Global Challenge (FGC) 2026') },

@@ -173,6 +173,9 @@ function openDetail(a, cardEl) {
   $('#dRole').hidden = !a.role; $('#dRole').textContent = a.role ? `Role: ${a.role}` : '';
   $('#dRobot').hidden = !a.robot; $('#dRobot').replaceChildren(...(a.robot ? [Object.assign(document.createElement('b'), { textContent: 'Robot' }), ' ' + a.robot] : []));
   facts.replaceChildren(...(a.facts || []).flatMap(([k, v]) => { const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd]; }));
+  const tb = $('#dTable'); tb.hidden = !a.table; tb.replaceChildren();
+  if (a.table) { const row = (cells, tag) => { const tr = document.createElement('tr'); for (const c of cells) { const td = document.createElement(tag); td.textContent = c; tr.append(td); } return tr; };
+    const th = document.createElement('thead'), bd = document.createElement('tbody'); th.append(row(a.table.head, 'th')); bd.append(...a.table.rows.map(r => row(r, 'td'))); tb.append(th, bd); }
   facts.hidden = !a.facts; link.hidden = !a.link; if (a.link) link.href = a.link;
   detail.hidden = false; detail.classList.remove('closing'); inner.scrollTop = 0;
   inner.animate([{ transform: flipFrom(cardEl), opacity: 0.2, borderRadius: '14px' }, { transform: 'none', opacity: 1, borderRadius: '24px' }],

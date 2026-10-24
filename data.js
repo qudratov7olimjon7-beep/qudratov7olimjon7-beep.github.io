@@ -38,10 +38,10 @@ export const upcoming = [{ name: 'FTC', note: 'Coming soon' }];
    thumb = small preview image, image = full image shown when opened (both optional).
    soon: true = shown as a dimmed 'Coming soon' tile that can't be opened. */
 export const certificates = [
-  { id: 'ielts-2026', title: 'IELTS Academic', date: '2026-07-19', subtitle: 'Overall band 7.0 · CEFR C1',
+  { id: 'ielts-2026', title: 'IELTS Academic', date: '2026-07-19', subtitle: 'British Council · Overall band 7.0 · CEFR C1',
     thumb: 'assets/certs/ielts-2026-thumb.jpg', image: 'assets/certs/ielts-2026.jpg',
-    details: 'Test Report Form, British Council / IDP / Cambridge English. Personal identifiers redacted.',
-    facts: [['Overall', '7.0'], ['CEFR', 'C1'], ['Listening', '7.5'], ['Reading', '7.5'], ['Writing', '6.0'], ['Speaking', '6.5']] },
+    details: 'IELTS Academic Test Report Form issued by the British Council. Personal identifiers redacted.',
+    table: { head: ['Section', 'Band'], rows: [['Listening', '7.5'], ['Reading', '7.5'], ['Writing', '6.0'], ['Speaking', '6.5'], ['Overall', '7.0'], ['CEFR level', 'C1']] } },
   { id: 'ap-calc-bc', title: 'AP Calculus BC', subtitle: 'Coming soon', soon: true },
 ];
 
