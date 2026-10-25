@@ -49,6 +49,10 @@ export const projects = [
   { id: 'ai-conveyor', title: 'AI-powered conveyor belt', subtitle: 'Coming soon', soon: true },
 ];
 export const websites = [
+  { id: 'uzbek-songwriter', title: 'Uzbek Songwriter', date: '2026', subtitle: 'Funny Uzbek songs from an idea in any language',
+    thumb: 'assets/websites/songwriter-thumb.jpg', image: 'assets/websites/songwriter-desktop.jpg', link: 'https://qudratov7olimjon7-beep.github.io/uzbek-songwriter/',
+    gallery: [['assets/websites/songwriter-mobile.jpg', 'Uzbek Songwriter on a phone showing a generated song']],
+    details: 'Type an idea in any language and instantly get a funny Uzbek song! Every song is saved in the archive, and you can listen to it in a male or female voice. Note: open it in Microsoft Edge to hear the audio.' },
   { id: 'tarjimon', title: 'Tarjimon', date: '2026', subtitle: 'Translator into the new 29-letter Uzbek alphabet',
     thumb: 'assets/websites/tarjimon-thumb.jpg', image: 'assets/websites/tarjimon-desktop.jpg', link: 'https://qudratov7olimjon7-beep.github.io/tarjimon/',
     gallery: [['assets/websites/tarjimon-mobile-en.jpg', 'Tarjimon on a phone translating English'], ['assets/websites/tarjimon-mobile-ar.jpg', 'Tarjimon on a phone translating Arabic']],
