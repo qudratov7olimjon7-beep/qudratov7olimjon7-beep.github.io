@@ -120,3 +120,4 @@ button{font:inherit;color:inherit;cursor:pointer}
 }
 
 .scores{width:100%;max-width:360px;border-collapse:collapse;margin:0 0 16px}.scores th,.scores td{padding:8px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.12)}.scores th{color:var(--muted);font-size:12px;font-weight:500}.scores td:last-child,.scores th:last-child{text-align:right;font:600 16px "Space Grotesk"}.scores tr:last-child td{color:var(--accent,#5eead4)}
+.gallery{display:flex;gap:12px;margin:0 0 16px}.gallery img{flex:1;min-width:0;max-width:200px;border-radius:12px;border:1px solid rgba(255,255,255,.12)}

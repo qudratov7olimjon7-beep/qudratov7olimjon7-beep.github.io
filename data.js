@@ -49,6 +49,10 @@ export const projects = [
   { id: 'ai-conveyor', title: 'AI-powered conveyor belt', subtitle: 'Coming soon', soon: true },
 ];
 export const websites = [
+  { id: 'tarjimon', title: 'Tarjimon', date: '2026', subtitle: 'Translator into the new 29-letter Uzbek alphabet',
+    thumb: 'assets/websites/tarjimon-thumb.jpg', image: 'assets/websites/tarjimon-desktop.jpg', link: 'https://qudratov7olimjon7-beep.github.io/tarjimon/',
+    gallery: [['assets/websites/tarjimon-mobile-en.jpg', 'Tarjimon on a phone translating English'], ['assets/websites/tarjimon-mobile-ar.jpg', 'Tarjimon on a phone translating Arabic']],
+    details: 'Tarjimon is a free website where you type text in any language. It figures out the language by itself, translates the meaning into Uzbek, and writes the result in the new 29-letter Uzbek alphabet (ö, ğ, ş, ç), with a button to copy it.' },
   { id: 'portfolio', title: 'Personal Portfolio', date: '2026', subtitle: 'This site: interactive 3D globe of my achievements',
     thumb: 'assets/websites/portfolio-thumb.jpg', image: 'assets/websites/portfolio-thumb.jpg', link: 'https://qudratov7olimjon7-beep.github.io/',
     details: 'A 3D Earth showing my achievements by country, a star field that reacts to the cursor, Apple-style card animations, and tabs for achievements, projects, websites and certificates. Built with HTML, CSS, JavaScript and globe.gl / three.js.' },
