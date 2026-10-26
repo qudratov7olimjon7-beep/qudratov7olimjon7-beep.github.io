@@ -49,6 +49,10 @@ export const projects = [
   { id: 'ai-conveyor', title: 'AI-powered conveyor belt', subtitle: 'Coming soon', soon: true },
 ];
 export const websites = [
+  { id: 'dot-sheet', title: 'Dot Sheet', date: '2026', subtitle: 'Turns your words into 1-bit dithered art',
+    thumb: 'assets/websites/dotsheet-thumb.jpg', image: 'assets/websites/dotsheet-mountains.jpg', link: 'https://qudratov7olimjon7-beep.github.io/dot-sheet/',
+    gallery: [['assets/websites/dotsheet-sky.jpg', 'Dot Sheet dithering a sky photo with the Atkinson method']],
+    details: 'Dot Sheet turns your words into 1-bit art. Describe any image, and it gets generated and rebuilt on a 500×500 sheet of dots, each one either pure black or pure white. It uses classic dithering, the same trick old newspapers and early computers used to fake shades of gray with just two colors. Every creation is saved to your personal archive, ready to download or copy. Created by Kudratov Olimjon' },
   { id: 'uzbek-songwriter', title: 'Uzbek Songwriter', date: '2026', subtitle: 'Funny Uzbek songs from an idea in any language',
     thumb: 'assets/websites/songwriter-thumb.jpg', image: 'assets/websites/songwriter-desktop.jpg', link: 'https://qudratov7olimjon7-beep.github.io/uzbek-songwriter/',
     gallery: [['assets/websites/songwriter-mobile.jpg', 'Uzbek Songwriter on a phone showing a generated song']],
