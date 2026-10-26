@@ -18,36 +18,53 @@ img.onload = () => avatar.replaceChildren(img);
 img.onerror = () => { avatar.textContent = initials; avatar.setAttribute('role', 'img'); avatar.setAttribute('aria-label', `${profile.name} (initials)`); };
 img.src = profile.avatar;
 
-/* ---------- Starfield ---------- */
-const cv = $('#stars'), ctx = cv.getContext('2d');
-let stars = [], W, H, mouse = { x: -1e4, y: -1e4 }, par = { x: 0, y: 0 };
+/* ---------- Starfield (WebGL, drawn on the GPU) ---------- */
+const cv = $('#stars');
+const gl = cv.getContext('webgl', { alpha: true, antialias: false, powerPreference: 'high-performance', premultipliedAlpha: false });
+let stars = [], W, H, dpr = 1, mouse = { x: -1e4, y: -1e4 }, par = { x: 0, y: 0 }, buf;
+const prog = gl.createProgram();
+for (const [type, src] of [[gl.VERTEX_SHADER, `
+attribute vec4 a; uniform vec2 u; uniform float d; varying vec3 v;
+void main(){ gl_Position=vec4(a.x/u.x*2.-1.,1.-a.y/u.y*2.,0.,1.); gl_PointSize=a.z*2.*d+1.; v=vec3(a.w,0.,0.); }`],
+  [gl.FRAGMENT_SHADER, `precision mediump float; varying vec3 v;
+void main(){ float r=length(gl_PointCoord-.5); if(r>.5)discard; float g=step(1.5,v.x);
+  gl_FragColor=vec4(mix(vec3(1.),vec3(.79,1.,.96),g),(v.x-2.*g)*smoothstep(.5,.3,r)); }`]]) {
+  const sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh); gl.attachShader(prog, sh);
+}
+gl.linkProgram(prog); gl.useProgram(prog);
+const uSize = gl.getUniformLocation(prog, 'u'), uDpr = gl.getUniformLocation(prog, 'd');
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 function resize() {
-  const dpr = Math.min(devicePixelRatio, 2);
-  W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  dpr = Math.min(devicePixelRatio, 2);
+  W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; gl.viewport(0, 0, cv.width, cv.height);
   stars = Array.from({ length: Math.round(W * H / 2200) }, () => ({
     x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.2 + 0.2,
     z: Math.random() * 0.8 + 0.2, a: Math.random() * 0.6 + 0.3, ox: 0, oy: 0, tw: Math.random() * 6.28,
   }));
+  buf = new Float32Array(stars.length * 4);
 }
 addEventListener('resize', resize); resize();
 addEventListener('pointermove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
 document.addEventListener('pointerleave', () => { mouse.x = mouse.y = -1e4; });
 function drawStars(t) {
-  ctx.clearRect(0, 0, W, H);
   const tx = mouse.x > -1e3 ? (mouse.x / W - 0.5) * -20 : 0, ty = mouse.y > -1e3 ? (mouse.y / H - 0.5) * -20 : 0;
   par.x += (tx - par.x) * 0.05; par.y += (ty - par.y) * 0.05;
-  for (const s of stars) {
+  stars.forEach((s, i) => {
     const px = s.x + par.x * s.z, py = s.y + par.y * s.z;
     const dx = px + s.ox - mouse.x, dy = py + s.oy - mouse.y, d = Math.hypot(dx, dy), R = 110;
     let glow = 0;
     if (d < R && !reduced) { const f = (1 - d / R); glow = f; s.ox += (dx / (d || 1)) * f * 1.6; s.oy += (dy / (d || 1)) * f * 1.6; }
     s.ox *= 0.94; s.oy *= 0.94;
     const tw = reduced ? 1 : 0.8 + 0.2 * Math.sin(t / 900 + s.tw);
-    ctx.globalAlpha = Math.min(1, s.a * tw + glow * 0.7);
-    ctx.fillStyle = glow > 0.05 ? '#c9fff6' : '#fff';
-    ctx.beginPath(); ctx.arc(px + s.ox, py + s.oy, s.r * (1 + glow), 0, 6.283); ctx.fill();
-  }
-  ctx.globalAlpha = 1;
+    // w packs alpha (0..1), plus 2 when the star glows teal near the cursor
+    buf.set([px + s.ox, py + s.oy, s.r * (1 + glow), Math.min(1, s.a * tw + glow * 0.7) + (glow > 0.05 ? 2 : 0)], i * 4);
+  });
+  gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.uniform2f(uSize, W, H); gl.uniform1f(uDpr, dpr);
+  gl.bufferData(gl.ARRAY_BUFFER, buf, gl.DYNAMIC_DRAW);
+  gl.drawArrays(gl.POINTS, 0, stars.length);
   requestAnimationFrame(drawStars);
 }
 requestAnimationFrame(drawStars);
@@ -56,7 +73,7 @@ requestAnimationFrame(drawStars);
 const tip = $('#tip');
 const has = (f) => !!byCountry[f.properties.name];
 let hovered = null, selected = null;
-const globe = Globe()($('#globe'))
+const globe = Globe({ rendererConfig: { antialias: true, alpha: true, powerPreference: 'high-performance' } })($('#globe'))
   .backgroundColor('rgba(0,0,0,0)')
   .showAtmosphere(true).atmosphereColor('#7fb8ff').atmosphereAltitude(0.18)
   .polygonCapColor((f) => has(f) ? (f === hovered || f === selected ? 'rgba(45,212,191,.95)' : 'rgba(45,212,191,.7)') : '#06080b')
