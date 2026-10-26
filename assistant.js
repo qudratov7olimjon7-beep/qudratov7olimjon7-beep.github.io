@@ -22,7 +22,7 @@ function competition(tag, label) {
 // Intents are checked in order; the first whose test matches wins.
 const intents = [
   { test: /\b(hi|hello|hey|salom|privet)\b/, reply: () => `Hi! Ask me anything about ${first}: his competitions, robots, certificates or how to contact him.` },
-  { test: /\b(contact|email|e-mail|mail|telegram|linkedin|github|reach|message|write to)\b/, reply: (q) => {
+  { test: /\b(contact|email|e-mail|mail|telegram|linkedin|github|twitter|x profile|reach|message|write to)\b/, reply: (q) => {
       const one = profile.contacts.filter((c) => q.includes(c.type) || q.includes(c.label.toLowerCase()));
       const cs = one.length && one.length < profile.contacts.length ? one : profile.contacts;
       return `You can reach ${first} here:\n${contactText(cs)}`; } },
