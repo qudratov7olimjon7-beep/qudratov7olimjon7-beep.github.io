@@ -393,3 +393,8 @@ $('#suggest').replaceChildren(...suggestions.map((s) => Object.assign(document.c
 
 history.replaceState(history.state, '', '#' + (here() || 'achievements'));
 render();
+
+/* ---------- Help guide ---------- */
+const help = $('#help');
+$('#helpBtn').onclick = () => help.showModal();
+help.addEventListener('click', (e) => { if (e.target === help) help.close(); });
