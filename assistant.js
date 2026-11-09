@@ -22,6 +22,10 @@ function competition(tag, label) {
 // Intents are checked in order; the first whose test matches wins.
 const intents = [
   { test: /\b(hi|hello|hey|salom|privet)\b/, reply: () => `Hi! Ask me anything about ${first}: his competitions, robots, certificates or how to contact him.` },
+  { test: /\b(yt video|youtube|video finder|telegram bot|@olimjon_yt_finder|bots?)\b/, reply: () => {
+      const bots = websites.filter((w) => /bot|telegram|yt|youtube/i.test(`${w.id} ${w.title} ${w.subtitle} ${w.details || ''}`));
+      const xs = bots.length ? bots : websites;
+      return xs.map((w) => `${w.title}: ${w.details || w.subtitle}${w.link ? ` ${w.link}` : ''}`).join('\n'); } },
   { test: /\b(contact|email|e-mail|mail|telegram|linkedin|github|twitter|x profile|reach|message|write to)\b/, reply: (q) => {
       const one = profile.contacts.filter((c) => q.includes(c.type) || q.includes(c.label.toLowerCase()));
       const cs = one.length && one.length < profile.contacts.length ? one : profile.contacts;
@@ -40,7 +44,7 @@ const intents = [
   { test: /\b(role|roles|job|do in the team|position)\b/, reply: () => {
       const seen = new Map(achievements.map((a) => [a.short, a.role]));
       return [...seen].map(([c, r]) => `In ${c} he was: ${r}.`).join('\n'); } },
-  { test: /\b(website|websites|site|portfolio)\b/, reply: () => websites.length
+  { test: /\b(website|websites|site|sites|portfolio)\b/, reply: () => websites.length
       ? websites.map((w) => `${w.title}: ${w.subtitle}.${w.link ? ` ${w.link}` : ''}`).join('\n') : `No websites are listed yet.` },
   { test: /\b(project|projects)\b/, reply: () => projects.length
       ? projects.map((p) => `${p.title}: ${p.subtitle || ''}`).join('\n') : `No projects are listed on this site yet. Check back soon!` },

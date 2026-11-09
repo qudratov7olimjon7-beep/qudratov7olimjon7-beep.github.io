@@ -195,7 +195,7 @@ function openDetail(a, cardEl) {
     const th = document.createElement('thead'), bd = document.createElement('tbody'); th.append(row(a.table.head, 'th')); bd.append(...a.table.rows.map(r => row(r, 'td'))); tb.append(th, bd); }
   const gal = $('#dGallery'); gal.hidden = !a.gallery;
   gal.replaceChildren(...(a.gallery || []).map(([src, alt]) => { const i = document.createElement('img'); i.src = src; i.alt = alt; i.loading = 'lazy'; return i; }));
-  facts.hidden = !a.facts; link.hidden = !a.link; if (a.link) link.href = a.link;
+  facts.hidden = !a.facts; link.hidden = !a.link; if (a.link) { link.href = a.link; link.textContent = a.linkLabel || 'Visit site ↗'; }
   detail.hidden = false; detail.classList.remove('closing'); inner.scrollTop = 0;
   inner.animate([{ transform: flipFrom(cardEl), opacity: 0.2, borderRadius: '14px' }, { transform: 'none', opacity: 1, borderRadius: '24px' }],
     { duration: DUR, easing: EASE });
