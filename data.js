@@ -51,7 +51,8 @@ export const projects = [
 ];
 export const websites = [
   { id: 'yt-finder', title: 'YT Video Finder', date: '2026', subtitle: 'Telegram bot that finds YouTube videos',
-    thumb: 'assets/websites/ytfinder-thumb.jpg', image: 'assets/websites/ytfinder-thumb.jpg', link: 'https://t.me/olimjon_yt_finder_bot', linkLabel: 'Open in Telegram ↗',
+    thumb: 'assets/websites/ytfinder-thumb.jpg', image: 'assets/websites/ytfinder-millionaire.jpg', link: 'https://t.me/olimjon_yt_finder_bot', linkLabel: 'Open in Telegram ↗',
+    gallery: [['assets/websites/ytfinder-arduino.jpg', 'YT Video Finder answering "how to use arduino" with the top 5 videos'], ['assets/websites/ytfinder-uzbek.jpg', 'YT Video Finder answering "uzbek music" with the top 5 videos'], ['assets/websites/ytfinder-football.jpg', 'YT Video Finder answering "football highlights" with the top 5 videos']],
     details: 'YT Video Finder is a Telegram bot that finds YouTube videos for you. Send it any topic and it replies with the top 5 videos, showing each one\'s title, channel, length and a link, plus a button to open it. Created by Olimjon.' },
   { id: 'dot-sheet', title: 'Dot Sheet', date: '2026', subtitle: 'Turns your words into 1-bit dithered art',
     thumb: 'assets/websites/dotsheet-thumb.jpg', image: 'assets/websites/dotsheet-mountains.jpg', link: 'https://qudratov7olimjon7-beep.github.io/dot-sheet/',
