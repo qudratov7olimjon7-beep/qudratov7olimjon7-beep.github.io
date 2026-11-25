@@ -158,7 +158,7 @@ function selectCountry(name) {
     const b = document.createElement('button');
     b.className = 'card'; b.dataset.id = a.id;
     b.innerHTML = `<span class="t"></span><span class="m"></span><span class="r"></span>`;
-    b.querySelector('.t').textContent = a.name; b.querySelector('.m').textContent = `${fmtDate(a.date)} · ${a.short}`; b.querySelector('.r').textContent = a.result;
+    b.querySelector('.t').textContent = a.name; b.querySelector('.m').textContent = `${a.dateLabel || fmtDate(a.date)} · ${a.short}`; b.querySelector('.r').textContent = a.result;
     b.onclick = () => go(path('achievements', name, a.id));
     li.append(b); return li;
   }));
@@ -184,7 +184,7 @@ function openDetail(a, cardEl) {
   origin = cardEl; openId = a.id;
   const img = $('#dImg'), facts = $('#dFacts'), link = $('#dLink');
   img.hidden = !a.image; if (a.image) { img.src = a.image; img.alt = a.title || a.name || ''; }
-  $('#dMeta').textContent = [a.country, fmtDate(a.date)].filter(Boolean).join(' · ');
+  $('#dMeta').textContent = [a.country, a.dateLabel || fmtDate(a.date)].filter(Boolean).join(' · ');
   $('#dTitle').textContent = a.name || a.title;
   $('#dResult').textContent = a.result || a.subtitle || ''; $('#dBody').textContent = a.details || '';
   $('#dRole').hidden = !a.role; $('#dRole').textContent = a.role ? `Role: ${a.role}` : '';
@@ -279,7 +279,7 @@ function renderGrid(name) {
     b.innerHTML = `<span class="thumb"></span><span class="t"></span><span class="m"></span>`;
     if (it.thumb || it.image) { const im = new Image(); im.src = it.thumb || it.image; im.alt = ''; im.loading = 'lazy'; b.querySelector('.thumb').append(im); }
     b.querySelector('.t').textContent = it.title;
-    b.querySelector('.m').textContent = it.soon ? '' : [fmtDate(it.date), it.subtitle].filter(Boolean).join(' · ');
+    b.querySelector('.m').textContent = it.soon ? '' : [it.dateLabel || fmtDate(it.date), it.subtitle].filter(Boolean).join(' · ');
     if (it.soon) { b.disabled = true; b.classList.add('soon'); b.querySelector('.thumb').textContent = 'Coming soon'; }
     else b.onclick = () => go(path(name, it.id));
     li.append(b); return li;
