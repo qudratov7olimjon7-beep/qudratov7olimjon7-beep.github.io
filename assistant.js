@@ -16,7 +16,10 @@ function about() {
 function competition(tag, label) {
   const xs = byComp(tag); if (!xs.length) return null;
   const { role, robot } = xs[0];
-  return `${first} took part in ${label}:\n${xs.map((a) => '• ' + line(a)).join('\n')}\nHis role: ${role}.\nThe robot: ${robot}`;
+  let out = `${first} took part in ${label}:\n${xs.map((a) => '• ' + line(a) + (a.details ? '. ' + a.details : '')).join('\n')}`;
+  if (role) out += `\nHis role: ${role}.`;
+  if (robot) out += `\nThe robot: ${robot}`;
+  return out;
 }
 
 // Intents are checked in order; the first whose test matches wins.
@@ -36,10 +39,11 @@ const intents = [
       : `No certificates are listed on this site yet.` },
   { test: /\b(wro|world robot|olympiad|rover|mars)\b/, reply: () => competition('wro', 'the World Robot Olympiad (WRO) 2025') },
   { test: /\b(fgc|first global|fire)\b/, reply: () => competition('fgc', 'the FIRST Global Challenge (FGC) 2026') },
-  { test: /\b(ftc|upcoming|next|future|plan|plans)\b/, reply: () => upcoming.length
+  { test: /\b(ftc|first tech|inspire award|tashkent first|vertex|38120)\b/, reply: () => competition('ftc', 'the FIRST Tech Challenge (FTC) 2026 Tashkent Regional') },
+  { test: /\b(upcoming|next|future|plan|plans)\b/, reply: () => upcoming.length
       ? `Coming up: ${list(upcoming.map((u) => u.name))}. More details will be added here later.` : `Nothing upcoming is listed yet.` },
   { test: /\b(robot|robots|build|built)\b/, reply: () => {
-      const seen = new Map(achievements.map((a) => [a.short, a.robot]));
+      const seen = new Map(achievements.filter((a) => a.robot).map((a) => [a.short, a.robot]));
       return `${first} has built robots for:\n${[...seen].map(([c, r]) => `• ${c}: ${r}`).join('\n')}`; } },
   { test: /\b(role|roles|job|do in the team|position)\b/, reply: () => {
       const seen = new Map(achievements.map((a) => [a.short, a.role]));
@@ -57,7 +61,7 @@ const intents = [
 export function answer(raw) {
   const q = ' ' + raw.toLowerCase().replace(/[^\p{L}\p{N}@.\s-]/gu, ' ') + ' ';
   const country = [...new Set(achievements.map((a) => a.country))].find((c) => q.includes(c.toLowerCase()));
-  if (country && !/\b(wro|fgc|robot|role)\b/.test(q)) {
+  if (country && !/\b(wro|fgc|ftc|robot|role|vertex|38120)\b/.test(q)) {
     return `In ${country}, ${first} competed in:\n${achievements.filter((a) => a.country === country).map((a) => '• ' + line(a)).join('\n')}`;
   }
   for (const it of intents) if (it.test.test(q)) { const r = it.reply(q); if (r) return r; }

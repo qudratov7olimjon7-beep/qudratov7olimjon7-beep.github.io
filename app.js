@@ -183,7 +183,7 @@ function flipFrom(el) {
 function openDetail(a, cardEl) {
   origin = cardEl; openId = a.id;
   const img = $('#dImg'), facts = $('#dFacts'), link = $('#dLink');
-  img.hidden = !a.image; if (a.image) { img.src = a.image; img.alt = a.title; }
+  img.hidden = !a.image; if (a.image) { img.src = a.image; img.alt = a.title || a.name || ''; }
   $('#dMeta').textContent = [a.country, fmtDate(a.date)].filter(Boolean).join(' · ');
   $('#dTitle').textContent = a.name || a.title;
   $('#dResult').textContent = a.result || a.subtitle || ''; $('#dBody').textContent = a.details || '';
@@ -327,7 +327,7 @@ const searchBox = $('#search'), sq = $('#sq'), sres = $('#sres'), sBtn = $('#sea
 const label = (t) => $('#tab-' + t).dataset.tip;
 const index = [
   ...Object.keys(byCountry).map((c) => ({ t: c, k: 'Country', to: path('achievements', c), s: c + ' ' + byCountry[c].map((a) => a.short).join(' ') })),
-  ...achievements.map((a) => ({ t: a.name, k: a.result, to: path('achievements', a.country, a.id), s: [a.name, a.short, a.country, a.result, a.role, a.robot].join(' ') })),
+  ...achievements.map((a) => ({ t: a.name, k: a.result, to: path('achievements', a.country, a.id), s: [a.name, a.short, a.country, a.result, a.role, a.robot, a.details].join(' ') })),
   ...Object.entries(sections).flatMap(([sec, items]) => items.map((it) => ({ t: it.title, k: label(sec), to: it.soon ? sec : path(sec, it.id), s: [it.title, it.subtitle, it.details, sec].join(' ') }))),
   ...TABS.map((t) => ({ t: label(t), k: 'Section', to: t, s: label(t) + ' ' + t })),
   ...upcoming.map((u) => ({ t: u.name, k: 'Coming soon', to: 'achievements', s: u.name + ' ' + (u.note || '') })),

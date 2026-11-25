@@ -19,6 +19,8 @@ const WRO = { role: 'Designer, Builder',
   robot: 'An autonomous Mars rover with a built-in computer, designed to reduce the time it takes for a message to arrive.' };
 const FGC = { role: 'Designer, Builder, Human Player',
   robot: 'Built to the season requirements to deal with fire by throwing special balls into it.' };
+const FTC = { role: 'Captain, designer, engineer, driver',
+  robot: 'Built around the rules of the game. Its main job is to collect balls and shoot them into the basket in the middle of the arena, set at a specific height.' };
 
 export const achievements = [
   { id: 'wro-2025-uz', name: 'WRO 2025 · National round', date: '2025', country: 'Uzbekistan', result: '1st place in Uzbekistan',
@@ -29,16 +31,29 @@ export const achievements = [
     short: 'FIRST Global Challenge', ...FGC, details: 'Also placed 4th in the Uzbekistan national round.' },
   { id: 'fgc-2026-uz', name: 'FGC 2026 · National round', date: '2026', country: 'Uzbekistan', result: '4th place in Uzbekistan',
     short: 'FIRST Global Challenge', ...FGC, details: 'Also took 2nd place at a competition in Kazakhstan.' },
+  { id: 'ftc-2026-tashkent', name: 'FTC Tashkent Regional 2026 — Inspire Award 2nd Place', date: '2026-11-16', country: 'Uzbekistan', result: 'Inspire Award 2nd Place',
+    short: 'FIRST Tech Challenge', ...FTC,
+    image: 'assets/ftc/ftc-cover.jpg',
+    gallery: [
+      ['assets/ftc/ftc-stage.jpg', 'Team #38120 on stage with the Inspire Award 2nd Place certificate and the robot'],
+      ['assets/ftc/ftc-robot.jpg', 'Team #38120 robot with mecanum wheels and REV hubs'],
+      ['assets/ftc/ftc-rankings.jpg', 'ftcscout.org qualification rankings showing team #38120 in 2nd place'],
+      ['assets/certs/ftc-inspire-2026.jpg', 'Inspire Award 2nd Place certificate, Tashkent FIRST Regional 2026'],
+    ],
+    details: 'Competed at the 2026 Tashkent FIRST Regional (FIRST Tech Challenge, 14–16 November 2026) with team #38120 "Olimjon" (now VERTEX). Ranked 2nd in qualification rankings (6 matches played, ranking score 2.67). Won the Inspire Award — 2nd Place, FTC\'s top overall award.' },
 ];
 
 // Upcoming: shown as a small line in the Achievements view, not on the globe. { name, note }
-export const upcoming = [{ name: 'FTC', note: 'Coming soon' }];
+export const upcoming = [];
 
 /* Card item (certificates, projects, websites):
    { id, title, date: 'YYYY-MM-DD' or 'YYYY', subtitle, thumb, image, details, facts?: [[label, value], ...], link? }
    thumb = small preview image, image = full image shown when opened (both optional).
    soon: true = shown as a dimmed 'Coming soon' tile that can't be opened. */
 export const certificates = [
+  { id: 'ftc-inspire-2026', title: 'Inspire Award 2nd Place', date: '2026-11-16', subtitle: 'Tashkent FIRST Regional 2026 · FIRST Tech Challenge',
+    thumb: 'assets/certs/ftc-inspire-2026-thumb.jpg', image: 'assets/certs/ftc-inspire-2026.jpg',
+    details: 'Inspire Award 2nd Place, Tashkent FIRST Regional 2026, presented to Olimjon. Signed by Murzakhmetov A.K. (Director of USTEM Foundation) and Butakhanov Z. (Director of Robotics and Engineering Association of the Republic of Uzbekistan).' },
   { id: 'ielts-2026', title: 'IELTS Academic', date: '2026-07-19', subtitle: 'British Council · Overall band 7.0 · CEFR C1',
     thumb: 'assets/certs/ielts-2026-thumb.jpg', image: 'assets/certs/ielts-2026.jpg',
     details: 'IELTS Academic Test Report Form issued by the British Council. Personal identifiers redacted.',
